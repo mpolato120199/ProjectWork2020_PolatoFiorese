@@ -1,0 +1,40 @@
+PROGETTO DIOPORCO
+la logica con il quale si vedono i film all'inizio (prescelti o a random) primo film parte da tt + 0000001
+Dopo aver visto i mockup dell'applicazione abbiamo preferito usare 
+un RelativeLayout per la prima facciata in quanto piu consono 
+all'interfaccia vista (lista "rettangolare" riga per riga)
+e per la seconda invece un ConstraintLayout per avere piu libertà.
+
+PRIMA FACCIATA
+Qui abbiamo deciso di usare un RecyclerView perchè è più performante, leggera
+e nuova della obsoleta ListView e oltretutto gestirebbe meglio l'offline.
+All'interno della View abbiamo una serie di celle formate da una ImageView 
+che conterranno le immagini ricevute tramite API e gestita con libreria apposita
+Al click dell'immagine si andrà ovviamente nella SECONDA FACCIATA tramite Intent
+piu dettagliata del film selezionato.
+
+SECONDA FACCIATA
+Questa facciata si compone di una immagine copertina, titolo del film e una breve introduzione,
+verrano implementati da una ImageView e 2 textView,
+la parte più complicata sarà riempire queste view dai dati dell'API e poi gestire l'immagine di copertina (sempre presa da API).
+
+FUNZIONALITA' EXTRA
+ci è stato imposto di usare un dialog per questa funzionalità, noi abbiamo pensato
+di aggiungere alla SECONDA FACCIATA un button "valuta" che se premuto ci apre un dialog
+in cui è permesso valutare da 1 a 5 stelle il film e lasciare una recensione/commento
+una difficolta potrebbe essere quella di aggiungere il campo valutazione nel DB
+oltre all'implementazione del DialogFragment con layout personalizzato.
+
+API
+abbiamo scelto OMDb per facilità d'uso e per della documentazione piu comprensibile a chi si affaccia
+per la prima volta all'uso di ciò, sara da capire se fare un DB per i film o lasciare solo chiamate API
+l'Id è composto da tt + 7 cifre e si possono fare facilmente delle ricerche
+
+http://www.omdbapi.com/?apikey=[yourkey]&
+
+http://img.omdbapi.com/?apikey=[yourkey]&
+
+LIBRERIE GESTIONE IMMAGINI
+
+la selezione qui è naturale abbiamo scelto glide in quanto dobbiamo caricare molte immagini e quest'ultimo 
+è piu performante, nonchè è gia stato utilizzato da noi e la documentazione ci è sembrata più curata e aggiornata
