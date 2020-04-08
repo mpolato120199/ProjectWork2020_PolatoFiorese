@@ -1,34 +1,36 @@
 PROGETTO DIOPORCO
-la logica con il quale si vedono i film all'inizio (prescelti o a random) primo film parte da tt + 0000001
+la logica con il quale si vedono i film all'inizio (prescelti o a random) primo film parte da tt + 0000001 (DOMANDA)
+
+CONSIDERAZIONI INIZIALI
 Dopo aver visto i mockup dell'applicazione abbiamo preferito usare 
 un RelativeLayout per la prima facciata in quanto piu consono 
 all'interfaccia vista (lista "rettangolare" riga per riga)
-e per la seconda invece un ConstraintLayout per avere piu libert‡.
+e per la seconda invece un ConstraintLayout per avere piu libert√†.
 
 PRIMA FACCIATA
-Qui abbiamo deciso di usare un RecyclerView perchË Ë pi˘ performante, leggera
+Qui abbiamo deciso di usare un RecyclerView perch√® √® pi√π performante, leggera
 e nuova della obsoleta ListView e oltretutto gestirebbe meglio l'offline.
 All'interno della View abbiamo una serie di celle formate da una ImageView 
 che conterranno le immagini ricevute tramite API e gestita con libreria apposita
-Al click dell'immagine si andr‡ ovviamente nella SECONDA FACCIATA tramite Intent
+Al click dell'immagine si andr√† ovviamente nella SECONDA FACCIATA tramite Intent
 piu dettagliata del film selezionato.
 
 SECONDA FACCIATA
 Questa facciata si compone di una immagine copertina, titolo del film e una breve introduzione,
 verrano implementati da una ImageView e 2 textView,
-la parte pi˘ complicata sar‡ riempire queste view dai dati dell'API e poi gestire l'immagine di copertina (sempre presa da API).
+la parte pi√π complicata sar√† riempire queste view dai dati dell'API e poi gestire l'immagine di copertina (sempre presa da API).
 
 FUNZIONALITA' EXTRA
-ci Ë stato imposto di usare un dialog per questa funzionalit‡, noi abbiamo pensato
+ci √® stato imposto di usare un dialog per questa funzionalit√†, noi abbiamo pensato
 di aggiungere alla SECONDA FACCIATA un button "valuta" che se premuto ci apre un dialog
-in cui Ë permesso valutare da 1 a 5 stelle il film e lasciare una recensione/commento
+in cui √® permesso valutare da 1 a 5 stelle il film e lasciare una recensione/commento
 una difficolta potrebbe essere quella di aggiungere il campo valutazione nel DB
 oltre all'implementazione del DialogFragment con layout personalizzato.
 
 API
-abbiamo scelto OMDb per facilit‡ d'uso e per della documentazione piu comprensibile a chi si affaccia
-per la prima volta all'uso di ciÚ, sara da capire se fare un DB per i film o lasciare solo chiamate API
-l'Id Ë composto da tt + 7 cifre e si possono fare facilmente delle ricerche
+abbiamo scelto OMDb per facilit√† d'uso e per della documentazione piu comprensibile a chi si affaccia
+per la prima volta all'uso di ci√≤, sara da capire se fare un DB per i film o lasciare solo chiamate API
+l'Id √® composto da tt + 7 cifre e si possono fare facilmente delle ricerche
 
 http://www.omdbapi.com/?apikey=[yourkey]&
 
@@ -36,5 +38,5 @@ http://img.omdbapi.com/?apikey=[yourkey]&
 
 LIBRERIE GESTIONE IMMAGINI
 
-la selezione qui Ë naturale abbiamo scelto glide in quanto dobbiamo caricare molte immagini e quest'ultimo 
-Ë piu performante, nonchË Ë gia stato utilizzato da noi e la documentazione ci Ë sembrata pi˘ curata e aggiornata
+la selezione qui √® naturale abbiamo scelto glide in quanto dobbiamo caricare molte immagini e quest'ultimo 
+√® piu performante, nonch√® √® gia stato utilizzato da noi e la documentazione ci √® sembrata pi√π curata e aggiornata
