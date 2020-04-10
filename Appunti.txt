@@ -1,0 +1,7 @@
+PROGETTO WORKO
+la logica con il quale si vedono i film all'inizio (prescelti o a random)
+primo film parte da tt + 0000001 (DOMANDA)
+
+http://www.omdbapi.com/?apikey=[yourkey]&
+
+http://img.omdbapi.com/?apikey=[yourkey]&
