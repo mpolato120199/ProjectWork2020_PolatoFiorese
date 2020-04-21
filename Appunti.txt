@@ -5,3 +5,8 @@ primo film parte da tt + 0000001 (DOMANDA)
 http://www.omdbapi.com/?apikey=[yourkey]&
 
 http://img.omdbapi.com/?apikey=[yourkey]&
+
+API Key : 8e53b138
+
+seconda tabella id film e valutazione
+dialog con valutazione e basta senza recensione
