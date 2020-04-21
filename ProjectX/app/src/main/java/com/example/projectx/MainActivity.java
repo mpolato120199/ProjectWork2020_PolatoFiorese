@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.projectx.adapter.FilmAdapter;
 import com.example.projectx.data.models.Film;
 import com.example.projectx.data.services.IWebServer;
 import com.example.projectx.data.services.WebServiceFilms;

@@ -1,4 +1,4 @@
-package com.example.projectx;
+package com.example.projectx.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.projectx.DetailActivity;
+import com.example.projectx.R;
 import com.example.projectx.data.models.Film;
 
 import java.util.List;
@@ -61,13 +63,13 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Film clickDataItem = filmList.get(position);
+                   /*Film clickDataItem = filmList.get(position);
                     Intent intent = new Intent(context, DetailActivity.class);
                     intent.putExtra("film_ID", filmList.get(position).getImdbID());
                     intent.putExtra("film_title", filmList.get(position).getTitle());
-                    intent.putExtra("film_poster", filmList.get(position).getPoster());
-                    context.startActivity(intent);
-                    Toast.makeText(view.getContext(), "Hai cliccato " + clickDataItem.getTitle(), Toast.LENGTH_SHORT).show();
+                    intent.putExtra("film_poster", filmList.get(position).getPoster());*/
+                    context.startActivity(new Intent(context, DetailActivity.class));
+                    //Toast.makeText(view.getContext(), "Hai cliccato " + clickDataItem.getTitle(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
