@@ -62,7 +62,7 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
                 @Override
                 public void onClick(View view) {
                     Film clickDataItem = filmList.get(position);
-                    Intent intent = new Intent(context, Activity2.class);
+                    Intent intent = new Intent(context, DetailActivity.class);
                     intent.putExtra("film_ID", filmList.get(position).getImdbID());
                     intent.putExtra("film_title", filmList.get(position).getTitle());
                     intent.putExtra("film_poster", filmList.get(position).getPoster());

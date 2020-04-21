@@ -48,10 +48,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getSupportActionBar().setTitle("MainActivity");
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Fetching Movies...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+        //progressDialog = new ProgressDialog(this);
+        //progressDialog.setMessage("Fetching Movies...");
+        //progressDialog.setCancelable(false);
+        //progressDialog.show();
 
         recyclerView = findViewById(R.id.recyclerFilms);
         webServiceFilms = WebServiceFilms.getInstance();
