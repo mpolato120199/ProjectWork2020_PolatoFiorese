@@ -1,4 +1,4 @@
-package com.example.projectx;
+package com.example.projectx.activities;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.projectx.R;
 
 public class DetailActivity extends AppCompatActivity {
 
