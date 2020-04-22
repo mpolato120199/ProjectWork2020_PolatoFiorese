@@ -8,13 +8,8 @@ import android.widget.ProgressBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-<<<<<<< HEAD:ProjectX/app/src/main/java/com/example/projectx/MainActivity.java
-import com.example.projectx.Film.FilmAdapter;
-=======
 import com.example.projectx.R;
 import com.example.projectx.adapters.FilmAdapter;
->>>>>>> 476d4a477ee3181151111656f57efaeca0f825ca:ProjectX/app/src/main/java/com/example/projectx/activities/MainActivity.java
 import com.example.projectx.data.models.Film;
 import com.example.projectx.data.services.IWebServer;
 import com.example.projectx.data.services.WebServiceFilms;

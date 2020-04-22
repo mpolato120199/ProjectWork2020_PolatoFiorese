@@ -24,21 +24,23 @@
         android:text="Titolo"
         android:textSize="20dp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/description"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/rateFilm"
+        app:layout_constraintHorizontal_bias="0.232"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imageView"
-        app:layout_constraintVertical_bias="0.501" />
+        app:layout_constraintVertical_bias="0.061" />
 
     <TextView
         android:id="@+id/description"
         android:layout_width="370dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="84dp"
         android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.609"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rateFilm" />
+        app:layout_constraintTop_toBottomOf="@+id/title" />
 
     <Button
         android:id="@+id/rateFilm"
@@ -46,26 +48,24 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/holo_blue_dark"
         android:text="Valuta"
-        app:layout_constraintBottom_toTopOf="@id/description"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-<<<<<<< HEAD
-        app:layout_constraintHorizontal_bias="0.901"
-        app:layout_constraintStart_toEndOf="@+id/title"
+        app:layout_constraintHorizontal_bias="0.795"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintVertical_bias="0.053" />
+        app:layout_constraintVertical_bias="0.064" />
 
     <TextView
         android:id="@+id/rateNumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/description"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.826"
+        app:layout_constraintHorizontal_bias="0.732"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rateFilm"
-        app:layout_constraintVertical_bias="0.426" />
-=======
-        app:layout_constraintStart_toEndOf="@id/title"
+        app:layout_constraintVertical_bias="0.077" />
+    app:layout_constraintStart_toEndOf="@id/title"
         app:layout_constraintTop_toBottomOf="@id/imageView" />
->>>>>>> 476d4a477ee3181151111656f57efaeca0f825ca
+
 </androidx.constraintlayout.widget.ConstraintLayout>
