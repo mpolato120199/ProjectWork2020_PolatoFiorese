@@ -8,5 +8,8 @@ http://img.omdbapi.com/?apikey=[yourkey]&
 
 API Key : 8e53b138
 
+IMDB ACCOUNT Nome profilo: ProjectWork
+psw
+
 seconda tabella id film e valutazione
 dialog con valutazione e basta senza recensione
