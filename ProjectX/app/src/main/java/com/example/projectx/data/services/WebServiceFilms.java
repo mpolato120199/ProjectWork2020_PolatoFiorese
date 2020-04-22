@@ -1,8 +1,14 @@
 package com.example.projectx.data.services;
 
 import android.util.Log;
+import android.widget.Toast;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+
+import com.example.projectx.activities.MainActivity;
+import com.example.projectx.adapters.FilmAdapter;
 import com.example.projectx.data.models.Film;
+import com.example.projectx.data.models.FilmResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,10 +21,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class WebServiceFilms {
 
-    private String TODO_BASE_URL = "http://www.omdbapi.com/";
+    private String TODO_BASE_URL = "http://www.omdbapi.com/?apikey=8e53b138";
 
     private static WebServiceFilms instance;
-    private FilmService todoService;
+    private FilmService filmService;
 
     private WebServiceFilms (){
         Retrofit retrofit = new Retrofit.Builder()
@@ -26,7 +32,7 @@ public class WebServiceFilms {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        todoService = retrofit.create(FilmService.class);
+        filmService = retrofit.create(FilmService.class);
     }
 
     public static WebServiceFilms getInstance() {
@@ -36,16 +42,17 @@ public class WebServiceFilms {
     }
 
     public void getFilms(final IWebServer callback) {
-        Call<List<Film>> todosRequest = todoService.getFilms();
+        Call<FilmResponse> filmsRequest = filmService.getFilms();
         //enqueue metodo asincrono di retrofit per la chiamata
         //con una callback ci avvisa alla fine dell'esecuzione
-        todosRequest.enqueue(new Callback<List<Film>>() {
+        filmsRequest.enqueue(new Callback<FilmResponse>() {
             @Override
             //se la chiamata va bene
-            public void onResponse(Call<List<Film>> call, Response<List<Film>> response) {
+            public void onResponse(Call<FilmResponse> call, Response<FilmResponse> response) {
                 //controllo che sia 200 perche entra nel onResponse quando restituisce un codice sia negativo che positivo
                 if (response.code() == 200) {
-                    callback.onFilmsFetched(true, response.body(), -1, null);
+                    callback.onFilmsFetched(true, response.body().getFilms(), 1, null);
+                    Log.d("ASDA", response.body().toString());
                 } else {
                     try {
                         callback.onFilmsFetched(true, null, response.code(), response.errorBody().string());
@@ -57,7 +64,7 @@ public class WebServiceFilms {
             }
             //se la chiamata non va bene
             @Override
-            public void onFailure(Call<List<Film>> call, Throwable t) {
+            public void onFailure(Call<FilmResponse> call, Throwable t) {
                 callback.onFilmsFetched(false, null, -1, t.getLocalizedMessage());
             }
         });

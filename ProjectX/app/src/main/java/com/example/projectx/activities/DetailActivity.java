@@ -1,8 +1,10 @@
-package com.example.projectx;
+package com.example.projectx.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.projectx.R;
 
 public class DetailActivity extends AppCompatActivity {
 
