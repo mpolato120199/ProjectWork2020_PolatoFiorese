@@ -1,5 +1,7 @@
 package com.example.projectx.data.models;
 
+import android.provider.BaseColumns;
+
 public class Film {
     /*
     {
@@ -13,15 +15,17 @@ public class Film {
 
     private String Title;
     private String Year;
-    private String imdbID;
-    private String Type;
+    private int ID;
+    private String BackDrop;
     private String Poster;
 
-    public Film(String title, String year, String imdbID, String type, String poster) {
+    private String Desc;
+
+    public Film(String title, String year, int ID, String backDrop, String poster) {
         Title = title;
         Year = year;
-        this.imdbID = imdbID;
-        Type = type;
+        this.ID = ID;
+        BackDrop = backDrop;
         Poster = poster;
     }
 
@@ -41,20 +45,12 @@ public class Film {
         Year = year;
     }
 
-    public String getImdbID() {
-        return imdbID;
+    public int getId() {
+        return ID;
     }
 
-    public void setImdbID(String imdbID) {
-        this.imdbID = imdbID;
-    }
-
-    public String getType() {
-        return Type;
-    }
-
-    public void setType(String type) {
-        Type = type;
+    public void setId(int id) {
+        this.ID = id;
     }
 
     public String getPoster() {
@@ -64,4 +60,12 @@ public class Film {
     public void setPoster(String poster) {
         Poster = poster;
     }
+
+    public String getDesc() { return Desc; }
+
+    public void setDesc(String desc) { Desc = desc; }
+
+    public String getBackDrop() { return BackDrop; }
+
+    public void setBackDrop(String backDrop) { BackDrop = backDrop; }
 }

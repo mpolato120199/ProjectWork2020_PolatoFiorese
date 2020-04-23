@@ -15,7 +15,9 @@ public class FilmResponse {
 
     @SerializedName("Search")
     private List<Film> films;
+
     private String totalResults;
+
     @SerializedName("Response")
     private String response;
 
