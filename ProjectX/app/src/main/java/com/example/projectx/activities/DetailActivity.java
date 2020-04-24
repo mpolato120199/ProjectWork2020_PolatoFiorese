@@ -26,7 +26,6 @@ public class DetailActivity extends AppCompatActivity {
     TextView mTitle, mDescription,mRateNumber;
     Button mRateFilm;
     ImageView mImage;
-    Cursor mCursor;
     String id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
