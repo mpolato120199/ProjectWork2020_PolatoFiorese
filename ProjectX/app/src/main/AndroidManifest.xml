@@ -30,6 +30,8 @@
                     android:pathPattern="/app" />
             </intent-filter>
         </activity>
+        <provider
+            android:name=".Film.FilmContentProvider"
+            android:authorities="com.example.projectx.Film.FilmContentProvider" />
     </application>
-
 </manifest>
