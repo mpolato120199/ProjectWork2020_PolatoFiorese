@@ -1,13 +1,11 @@
 package com.example.projectx.data.services;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
-import androidx.recyclerview.widget.GridLayoutManager;
-
-import com.example.projectx.activities.MainActivity;
-import com.example.projectx.adapters.FilmAdapter;
-import com.example.projectx.data.models.Film;
+import com.example.projectx.Film.FilmContentProvider;
+import com.example.projectx.Film.FilmTableHelper;
 import com.example.projectx.data.models.FilmResponse;
 
 import java.io.IOException;
@@ -19,9 +17,10 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+//CLIENT NIGERIA
 public class WebServiceFilms {
 
-    private String TODO_BASE_URL = "http://www.omdbapi.com/?apikey=8e53b138";
+    private String TODO_BASE_URL = "https://api.themoviedb.org";
 
     private static WebServiceFilms instance;
     private FilmService filmService;
@@ -41,18 +40,28 @@ public class WebServiceFilms {
         return instance;
     }
 
-    public void getFilms(final IWebServer callback) {
-        Call<FilmResponse> filmsRequest = filmService.getFilms();
-        //enqueue metodo asincrono di retrofit per la chiamata
-        //con una callback ci avvisa alla fine dell'esecuzione
+    public void getFilms(String apiKey, final Context context, final IWebServer callback) {
+        Call<FilmResponse> filmsRequest = filmService.getFilms(apiKey);
         filmsRequest.enqueue(new Callback<FilmResponse>() {
             @Override
-            //se la chiamata va bene
             public void onResponse(Call<FilmResponse> call, Response<FilmResponse> response) {
-                //controllo che sia 200 perche entra nel onResponse quando restituisce un codice sia negativo che positivo
                 if (response.code() == 200) {
-                    callback.onFilmsFetched(true, response.body().getFilms(), 1, null);
-                    Log.d("ASDA", response.body().toString());
+                    FilmResponse results = response.body();
+                    List<FilmResponse.SingleFilmResult> filmList = results.getResults();
+                    callback.onFilmsFetched(true, filmList, -1, null);
+
+                    context.getContentResolver().delete(FilmContentProvider.FILMS_URI, null, null);
+                    for (FilmResponse.SingleFilmResult movie : filmList) {
+                        ContentValues cv = new ContentValues();
+                        cv.put(FilmTableHelper.ID, movie.getId());
+                        cv.put(FilmTableHelper.TITOLO, movie.getTitle());
+                        cv.put(FilmTableHelper.DESCRIZIONE, movie.getOverview());
+                        cv.put(FilmTableHelper.IMMAGINE_COPERTINA, movie.getPosterPath());
+                        cv.put(FilmTableHelper.IMMAGINE_DETTAGLIO, movie.getBackdropPath());
+                        context.getContentResolver().insert(FilmContentProvider.FILMS_URI, cv);
+                    }
+
+                    System.out.println("Successo onResponse() andato con successo!");
                 } else {
                     try {
                         callback.onFilmsFetched(true, null, response.code(), response.errorBody().string());
@@ -62,10 +71,11 @@ public class WebServiceFilms {
                     }
                 }
             }
-            //se la chiamata non va bene
+
             @Override
             public void onFailure(Call<FilmResponse> call, Throwable t) {
                 callback.onFilmsFetched(false, null, -1, t.getLocalizedMessage());
+                System.out.println("Errore entrato nell' OnFailure()");
             }
         });
     }

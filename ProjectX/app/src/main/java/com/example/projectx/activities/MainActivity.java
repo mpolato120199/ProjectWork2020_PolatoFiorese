@@ -1,79 +1,142 @@
 package com.example.projectx.activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.projectx.Film.FilmContentProvider;
+import com.example.projectx.Film.FilmTableHelper;
 import com.example.projectx.R;
 import com.example.projectx.adapters.FilmAdapter;
-import com.example.projectx.data.models.Film;
+import com.example.projectx.data.models.FilmResponse;
 import com.example.projectx.data.services.IWebServer;
 import com.example.projectx.data.services.WebServiceFilms;
+import com.example.projectx.interfaces.IConnectivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements IConnectivity, IWebServer {
 
-    private ProgressBar loadingBar;
+    private final String API_KEY = "a979a7eb2578017177824cf553c182ef";
+
     private RecyclerView recyclerView;
-    private List<Film> filmList;
     private FilmAdapter filmAdapter;
-    private ProgressDialog progressDialog;
+    List<FilmResponse.SingleFilmResult> savedFilms;
 
     private WebServiceFilms webServiceFilms;
-
-    private IWebServer webServerListener = new IWebServer() {
-        @Override
-        public void onFilmsFetched(boolean success, List<Film> films, int errorCode, String errorMessage) {
-            if (success) {
-                //filmAdapter.setFilmList(films);
-                //metto 100 caselle di prova e uso il gridlayout
-                for (int i = 0; i < 99; i++) {
-                    filmList.add(new Film("Film " + i, "20" + i, "10" + i, "Film", "aaaa"));
-                }
-                filmAdapter.notifyDataSetChanged();
-                loadingBar.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
-            } else {
-                loadingBar.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.GONE);
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().setTitle("MainActivity");
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Fetching Movies...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-        filmList = new ArrayList<>();
+        getSupportActionBar().setTitle("PROJECT X");
 
         recyclerView = findViewById(R.id.recyclerFilms);
-        webServiceFilms = WebServiceFilms.getInstance();
-        loadingBar = findViewById(R.id.loading_bar);
 
-        loadFilms();
+        if (checkConnection()) {
+            webServiceFilms = WebServiceFilms.getInstance();
+            connectionOK();
+        } else {
+            connectionKO();
+        }
+        webServiceFilms = WebServiceFilms.getInstance();
     }
 
-    private void loadFilms() {
-        progressDialog.dismiss();
-        loadingBar.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
-        webServiceFilms.getFilms(webServerListener);
-        filmAdapter = new FilmAdapter(filmList, this);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        recyclerView.setAdapter(filmAdapter);
-        filmAdapter.notifyDataSetChanged();
+    @Override
+    public boolean checkConnection() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager == null)
+            return false;
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
+    }
+
+    @Override
+    public void connectionOK() {
+        webServiceFilms.getFilms(API_KEY, MainActivity.this, new IWebServer() {
+            @Override
+            public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
+                if (success) {
+                    int orientation = getResources().getConfiguration().orientation;
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        filmAdapter = new FilmAdapter(films, MainActivity.this);
+                        recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 4));
+                        recyclerView.setAdapter(filmAdapter);
+                    } else {
+                        filmAdapter = new FilmAdapter(films, MainActivity.this);
+                        recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
+                        recyclerView.setAdapter(filmAdapter);
+                    }
+
+                } else {
+                    Toast.makeText(MainActivity.this, "Errore: " + errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void connectionKO() {
+        savedFilms = new ArrayList<>();
+        Cursor movies = MainActivity.this.getContentResolver().query(FilmContentProvider.FILMS_URI, null, null, null, null);
+
+        if (movies != null) {
+            while (movies.moveToNext()) {
+                FilmResponse.SingleFilmResult film = new FilmResponse.SingleFilmResult();
+
+                film.setId(movies.getColumnIndex(FilmTableHelper.ID));
+                film.setTitle(movies.getString(movies.getColumnIndex(FilmTableHelper.TITOLO)));
+                film.setOverview(movies.getString(movies.getColumnIndex(FilmTableHelper.DESCRIZIONE)));
+                film.setPosterPath(movies.getString(movies.getColumnIndex(FilmTableHelper.IMMAGINE_COPERTINA)));
+                film.setBackdropPath(movies.getString(movies.getColumnIndex(FilmTableHelper.IMMAGINE_DETTAGLIO)));
+
+                savedFilms.add(film);
+            }
+
+            int orientation = getResources().getConfiguration().orientation;
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                filmAdapter = new FilmAdapter(savedFilms, MainActivity.this);
+                recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 4));
+                recyclerView.setAdapter(filmAdapter);
+                filmAdapter.notifyDataSetChanged();
+            } else {
+                filmAdapter = new FilmAdapter(savedFilms, MainActivity.this);
+                recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
+                recyclerView.setAdapter(filmAdapter);
+                filmAdapter.notifyDataSetChanged();
+            }
+        } else {
+            Toast.makeText(MainActivity.this, "Errore, cursor movies null ", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (checkConnection()) {
+            webServiceFilms = WebServiceFilms.getInstance();
+            connectionOK();
+        } else {
+            connectionKO();
+        }
+    }
+
+    @Override
+    public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
+
     }
 }
