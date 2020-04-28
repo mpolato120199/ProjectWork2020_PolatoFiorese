@@ -1,6 +1,5 @@
 package com.example.projectx.activities;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -9,8 +8,6 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -45,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().setTitle("PROJECT X");
+        getSupportActionBar().setTitle("Project X");
 
         recyclerView = findViewById(R.id.recyclerFilms);
 
@@ -55,7 +52,20 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
         } else {
             connectionKO();
         }
-        webServiceFilms = WebServiceFilms.getInstance();
+
+        /*int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            filmAdapter = new FilmAdapter(savedFilms, MainActivity.this);
+            recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 4));
+            recyclerView.setAdapter(filmAdapter);
+            filmAdapter.notifyDataSetChanged();
+        } else {
+            filmAdapter = new FilmAdapter(savedFilms, MainActivity.this);
+            recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
+            recyclerView.setAdapter(filmAdapter);
+            filmAdapter.notifyDataSetChanged();
+        }*/
+
     }
 
     @Override
@@ -73,17 +83,19 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
             @Override
             public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
                 if (success) {
+                    Toast.makeText(MainActivity.this, "Film caricati con successo ☑", Toast.LENGTH_SHORT).show();
                     int orientation = getResources().getConfiguration().orientation;
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         filmAdapter = new FilmAdapter(films, MainActivity.this);
                         recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 4));
                         recyclerView.setAdapter(filmAdapter);
+                        filmAdapter.notifyDataSetChanged();
                     } else {
                         filmAdapter = new FilmAdapter(films, MainActivity.this);
                         recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
                         recyclerView.setAdapter(filmAdapter);
+                        filmAdapter.notifyDataSetChanged();
                     }
-
                 } else {
                     Toast.makeText(MainActivity.this, "Errore: " + errorMessage, Toast.LENGTH_SHORT).show();
                 }
@@ -121,21 +133,11 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
                 recyclerView.setAdapter(filmAdapter);
                 filmAdapter.notifyDataSetChanged();
             }
+
         } else {
             Toast.makeText(MainActivity.this, "Errore, cursor movies null ", Toast.LENGTH_SHORT).show();
         }
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (checkConnection()) {
-            webServiceFilms = WebServiceFilms.getInstance();
-            connectionOK();
-        } else {
-            connectionKO();
-        }
     }
 
     @Override
@@ -153,4 +155,22 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
 
         return super.onCreateOptionsMenu(menu);
     }
+
+    /*@Override
+    protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        int scrollPosition = recyclerView.computeVerticalScrollOffset();
+        Toast.makeText(this, "onSaveInstanceState " + scrollPosition, Toast.LENGTH_SHORT).show();
+        savedInstanceState.putInt("Posizione", scrollPosition);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        int scrollPosition = savedInstanceState.getInt("Posizione");
+        Toast.makeText(this, "onRestoreInstanceState " + scrollPosition, Toast.LENGTH_SHORT).show();
+        recyclerView.getLayoutManager().scrollToPosition(scrollPosition);
+    }*/
 }

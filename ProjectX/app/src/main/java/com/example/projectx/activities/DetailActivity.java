@@ -3,8 +3,8 @@ package com.example.projectx.activities;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -12,6 +12,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,12 +26,15 @@ public class DetailActivity extends AppCompatActivity {
     Button mButtonRateFilm;
     ImageView mImageDetail, mImageStar;
     String id;
+    int scrollPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-        getSupportActionBar().setTitle("DETTAGLI DEL FILM");
+        getSupportActionBar().setTitle("Dettaglio del Film");
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mTitle = findViewById(R.id.title);
         mDescription = findViewById(R.id.description);
@@ -51,6 +55,7 @@ public class DetailActivity extends AppCompatActivity {
             final String description = getIntent().getExtras().getString(FilmTableHelper.DESCRIZIONE);
             final String imageDetail = getIntent().getExtras().getString(FilmTableHelper.IMMAGINE_DETTAGLIO);
             final String imageMain = getIntent().getExtras().getString(FilmTableHelper.IMMAGINE_COPERTINA);
+            //scrollPosition = getIntent().getExtras().getInt("Posizione");
 
             id = getIntent().getExtras().getString(FilmTableHelper.ID);
 
@@ -92,10 +97,12 @@ public class DetailActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /*public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == android.R.id.home){
             finish();
+            //Toast.makeText(this, "diocan" + scrollPosition, Toast.LENGTH_SHORT).show();
         }
-        return super.onKeyDown(keyCode, event);
-    }*/
+        return true;
+    }
 }

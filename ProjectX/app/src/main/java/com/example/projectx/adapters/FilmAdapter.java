@@ -27,7 +27,6 @@ import java.util.List;
 
 public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder> implements Filterable {
 
-
     private Filter filter = new Filter() {
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
@@ -75,7 +74,7 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FilmViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final FilmViewHolder holder, final int position) {
         final ImageView imageView = holder.filmImage;
         final CardView cardView = holder.itemView.findViewById(R.id.myCardView);
 
@@ -88,21 +87,22 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
         cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Toast.makeText(context, holder.getAdapterPosition() + "", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(context, DetailActivity.class);
                 Bundle bundle = new Bundle();
                 int id = filmList.get(position).getId();
-                Toast.makeText(context, "id film --> " + id, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "id film --> " + id, Toast.LENGTH_SHORT).show();
                 bundle.putString(FilmTableHelper.ID, Integer.toString(id));
                 bundle.putString(FilmTableHelper.TITOLO, filmList.get(position).getTitle());
                 bundle.putString(FilmTableHelper.DESCRIZIONE, filmList.get(position).getOverview());
                 bundle.putString(FilmTableHelper.IMMAGINE_COPERTINA, filmList.get(position).getPosterPath());
                 bundle.putString(FilmTableHelper.IMMAGINE_DETTAGLIO, filmList.get(position).getBackdropPath());
+                //bundle.putInt("Posizione", holder.getAdapterPosition());
                 intent.putExtras(bundle);
                 context.startActivity(intent);
             }
         });
     }
-
 
     @Override
     public int getItemCount() {
@@ -114,13 +114,11 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
         return filter;
     }
 
-
     public class FilmViewHolder extends RecyclerView.ViewHolder {
         ImageView filmImage;
 
         public FilmViewHolder(@NonNull View itemView) {
             super(itemView);
-            //final int position = getAdapterPosition();
             filmImage = itemView.findViewById(R.id.imageFilm);
         }
     }
