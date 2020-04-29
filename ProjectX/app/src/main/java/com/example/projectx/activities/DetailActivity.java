@@ -59,7 +59,7 @@ public class DetailActivity extends AppCompatActivity {
 
             id = getIntent().getExtras().getString(FilmTableHelper.ID);
 
-            if (imageDetail.equals(null) || imageDetail.equals("") || (TextUtils.isEmpty(imageDetail))) {
+            if (imageDetail == null || imageDetail.equals(null) || imageDetail.equals("") || (TextUtils.isEmpty(imageDetail))) {
                 Glide.with(DetailActivity.this)
                         .load("https://image.tmdb.org/t/p/w500/" + imageMain)
                         .into(mImageDetail);
