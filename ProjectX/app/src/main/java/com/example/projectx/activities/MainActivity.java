@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
         });
     }
 
+    //GITHUB FA SCHIFO
     /*@Override
     protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
