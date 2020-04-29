@@ -79,4 +79,33 @@ public class WebServiceFilms {
             }
         });
     }
+
+    public void searchFilms(String query, String apiKey, final Context context, final IWebServer server) {
+
+        Call<FilmResponse> filmsRequest = filmService.searchFilm(apiKey, query);
+
+        filmsRequest.enqueue(new Callback<FilmResponse>() {
+            @Override
+            public void onResponse(Call<FilmResponse> call, Response<FilmResponse> response) {
+                if (response.code() == 200) {
+                    FilmResponse results = response.body();
+                    List<FilmResponse.SingleFilmResult> listOfMovies = results.getResults();
+                    server.onFilmsFetched(true, listOfMovies, -1, null);
+
+                } else {
+                    try {
+                        server.onFilmsFetched(true, null, response.code(), response.errorBody().string());
+                    } catch (IOException ex) {
+                        Log.e("WebService", ex.toString());
+                        server.onFilmsFetched(true, null, response.code(), "Generic error message");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FilmResponse> call, Throwable t) {
+                server.onFilmsFetched(false, null, -1, t.getLocalizedMessage());
+            }
+        });
+    }
 }

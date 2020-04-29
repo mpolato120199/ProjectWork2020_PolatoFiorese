@@ -16,4 +16,9 @@ public interface FilmService {
     Call<FilmResponse> getFilms(
             @Query("api_key") String apiKey
     );
+
+    @GET("3/search/movie?")
+    Call<FilmResponse> searchFilm(
+            @Query("api_key") String apiKey,
+            @Query("query") String query);
 }

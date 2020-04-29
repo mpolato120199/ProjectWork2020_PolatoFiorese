@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
     private RecyclerView recyclerView;
     private FilmAdapter filmAdapter;
     List<FilmResponse.SingleFilmResult> savedFilms;
+    List<FilmResponse.SingleFilmResult> searchedFilm;
 
     private WebServiceFilms webServiceFilms;
 
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
 
     @Override
     public void connectionOK() {
-        webServiceFilms.getFilms(API_KEY, MainActivity.this, new IWebServer() {
+        webServiceFilms.getFilms(API_KEY, MainActivity.this, new IWebServer() {;
             @Override
             public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
                 if (success) {
@@ -87,11 +88,13 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
                     int orientation = getResources().getConfiguration().orientation;
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         filmAdapter = new FilmAdapter(films, MainActivity.this);
+                        searchedFilm = new ArrayList<>();
                         recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 4));
                         recyclerView.setAdapter(filmAdapter);
                         filmAdapter.notifyDataSetChanged();
                     } else {
                         filmAdapter = new FilmAdapter(films, MainActivity.this);
+                        searchedFilm = new ArrayList<>();
                         recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
                         recyclerView.setAdapter(filmAdapter);
                         filmAdapter.notifyDataSetChanged();
@@ -141,19 +144,58 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
     }
 
     @Override
-    public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
-
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.toolbar_menu,menu);
         MenuItem searchItem = menu.findItem(R.id.search_bar);
         SearchView searchView = (SearchView) searchItem.getActionView();
         searchView.setQueryHint("cosa vuoi cercare");
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
 
-        return super.onCreateOptionsMenu(menu);
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (checkConnection()) {
+                    if (!newText.isEmpty()) {
+                        searchFilms(newText);
+                    } else {
+                        filmAdapter.resetFilms();
+                        connectionOK();
+                    }
+                } else {
+                    if (!newText.isEmpty()) {
+                        filmAdapter.getFilter().filter(newText);
+                    }
+                }
+                return false;
+            }
+        });
+        return true;
+    }
+
+    @Override
+    public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
+        //films
+    }
+
+    private void searchFilms(String QUERY) {
+        webServiceFilms.searchFilms(QUERY, API_KEY, MainActivity.this, new IWebServer() {
+            @Override
+            public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
+                if (success) {
+                    filmAdapter.resetFilms();
+                    searchedFilm.clear();
+                    searchedFilm.addAll(films);
+                    filmAdapter.setFilms(searchedFilm);
+                    filmAdapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(MainActivity.this, "CONNESSIONE INTERNET ASSENTE", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     /*@Override

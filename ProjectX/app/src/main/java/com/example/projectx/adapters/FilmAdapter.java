@@ -122,4 +122,12 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
             filmImage = itemView.findViewById(R.id.imageFilm);
         }
     }
+
+    public void resetFilms(){
+        this.filmList.clear();
+    }
+
+    public void setFilms(List<FilmResponse.SingleFilmResult> list){
+        this.filmList = list;
+    }
 }
