@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -81,7 +79,7 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
 
         Glide.with(context)
                 .load("https://image.tmdb.org/t/p/w500" + filmList.get(position).getPosterPath())
-                .placeholder(R.drawable.loading)
+                .placeholder(R.drawable.preview)
                 .into(imageView);
 
         cardView.setOnClickListener(new View.OnClickListener() {

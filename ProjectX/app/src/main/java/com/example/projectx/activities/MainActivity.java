@@ -1,5 +1,6 @@
 package com.example.projectx.activities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -8,9 +9,12 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -49,6 +53,26 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
         getSupportActionBar().setTitle("Project X");
 
         recyclerView = findViewById(R.id.recyclerFilms);
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                //int visibleItemCount = recyclerView.getChildCount();
+                //int totalItemCount = new GridLayoutManager(this, 2);
+                //firstvisible item = gridlayout.findfirstvisibleite
+
+                if(dy > 0) {
+                    hideKeyboard(MainActivity.this);
+                    /*if(){
+                        if(totalItemCount > ){
+
+                        }
+
+                    }*/
+                }
+            }
+        });
+
         swipeLayout = findViewById(R.id.swipeLayout);
         swipeLayout.setColorSchemeResources(R.color.colorPrimary);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -109,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         filmAdapter = new FilmAdapter(films, MainActivity.this);
                         searchedFilm = new ArrayList<>();
-                        recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 3));
+                        recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 4));
                         recyclerView.setAdapter(filmAdapter);
                         filmAdapter.notifyDataSetChanged();
                     } else {
@@ -147,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
             int orientation = getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 filmAdapter = new FilmAdapter(savedFilms, MainActivity.this);
-                recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 3));
+                recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 4));
                 recyclerView.setAdapter(filmAdapter);
                 filmAdapter.notifyDataSetChanged();
             } else {
@@ -241,5 +265,15 @@ public class MainActivity extends AppCompatActivity implements IConnectivity, IW
                 }
             }
         });
+    }
+
+    //metodo per nascondere la tastiera
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        View view = activity.getCurrentFocus();
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

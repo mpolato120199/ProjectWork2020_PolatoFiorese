@@ -1,6 +1,7 @@
 package com.example.projectx.activities;
 
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -22,7 +23,7 @@ import com.example.projectx.R;
 
 public class DetailActivity extends AppCompatActivity {
 
-    TextView mTitle, mDescription, mRateNumber;
+    TextView mTitle, mDescription, mRateNumber, mRateNumber2;
     Button mButtonRateFilm;
     ImageView mImageDetail, mImageStar;
     String id;
@@ -41,6 +42,7 @@ public class DetailActivity extends AppCompatActivity {
         mImageDetail = findViewById(R.id.imageViewDetail);
         mImageStar = findViewById(R.id.star);
         mRateNumber = findViewById(R.id.rateNumber);
+        mRateNumber2 = findViewById(R.id.rateNumber2);
         mButtonRateFilm = findViewById(R.id.buttonRateFilm);
 
         mButtonRateFilm.setOnClickListener(new View.OnClickListener() {
@@ -62,12 +64,15 @@ public class DetailActivity extends AppCompatActivity {
             if (imageDetail == null || imageDetail.equals(null) || imageDetail.equals("") || (TextUtils.isEmpty(imageDetail))) {
                 Glide.with(DetailActivity.this)
                         .load("https://image.tmdb.org/t/p/w500/" + imageMain)
+                        .placeholder(R.drawable.preview)
                         .into(mImageDetail);
             } else {
                 Glide.with(DetailActivity.this)
                         .load("https://image.tmdb.org/t/p/w500/" + imageDetail)
+                        .placeholder(R.drawable.preview)
                         .into(mImageDetail);
             }
+
             mTitle.setText(title);
             if (!description.equals(""))
                 mDescription.setText(description);
@@ -89,7 +94,13 @@ public class DetailActivity extends AppCompatActivity {
         builder.setPositiveButton("VALUTA", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                mRateNumber.setText("Il tuo voto: " + ratingBar.getRating());
+                int orientation = getResources().getConfiguration().orientation;
+                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    mRateNumber.setText("Il tuo voto: ");
+                    mRateNumber2.setText("" + ratingBar.getRating());
+                } else {
+                    mRateNumber.setText("Il tuo voto: " + ratingBar.getRating());
+                }
                 mImageStar.setImageResource(R.drawable.star);
                 Toast.makeText(getApplicationContext(), "Film valutato: " + ratingBar.getRating() + " stelle", Toast.LENGTH_SHORT).show();
             }
