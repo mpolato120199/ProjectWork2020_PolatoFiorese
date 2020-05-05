@@ -18,16 +18,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.example.projectx.Film.FilmTableHelper;
 import com.example.projectx.R;
+import com.example.projectx.data.database.FilmTableHelper;
 
 public class DetailActivity extends AppCompatActivity {
 
     TextView mTitle, mDescription, mRateNumber, mRateNumber2;
     Button mButtonRateFilm;
     ImageView mImageDetail, mImageStar;
-    String id;
-    int scrollPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +35,12 @@ public class DetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        setLayout();
+
+        displayFilmDetail();
+    }
+
+    public void setLayout() {
         mTitle = findViewById(R.id.title);
         mDescription = findViewById(R.id.description);
         mImageDetail = findViewById(R.id.imageViewDetail);
@@ -44,23 +48,39 @@ public class DetailActivity extends AppCompatActivity {
         mRateNumber = findViewById(R.id.rateNumber);
         mRateNumber2 = findViewById(R.id.rateNumber2);
         mButtonRateFilm = findViewById(R.id.buttonRateFilm);
-
         mButtonRateFilm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 withRatingBar(view);
             }
         });
+    }
 
+    public void displayFilmDetail() {
         if (getIntent().getExtras() != null) {
+            final String id = getIntent().getExtras().getString(FilmTableHelper._ID);
             final String title = getIntent().getExtras().getString(FilmTableHelper.TITOLO);
             final String description = getIntent().getExtras().getString(FilmTableHelper.DESCRIZIONE);
             final String imageDetail = getIntent().getExtras().getString(FilmTableHelper.IMMAGINE_DETTAGLIO);
             final String imageMain = getIntent().getExtras().getString(FilmTableHelper.IMMAGINE_COPERTINA);
+            //final String valutazione = getIntent().getExtras().getString(FilmTableHelper.VALUTAZIONE);
             //scrollPosition = getIntent().getExtras().getInt("Posizione");
 
-            id = getIntent().getExtras().getString(FilmTableHelper.ID);
+            //imposta il titolo
+            if (title != null || !title.equals(""))
+                mTitle.setText(title);
+            else {
+                mTitle.setText("**TITOLO NON DISPONIBILE**");
+            }
 
+            //imposta la descrizione
+            if (description != null || !description.equals(""))
+                mDescription.setText(description);
+            else {
+                mDescription.setText("**DESCRIZIONE NON DISPONIBILE**");
+            }
+
+            //imposta l'immagine
             if (imageDetail == null || imageDetail.equals(null) || imageDetail.equals("") || (TextUtils.isEmpty(imageDetail))) {
                 Glide.with(DetailActivity.this)
                         .load("https://image.tmdb.org/t/p/w500/" + imageMain)
@@ -73,14 +93,10 @@ public class DetailActivity extends AppCompatActivity {
                         .into(mImageDetail);
             }
 
-            mTitle.setText(title);
-            if (!description.equals(""))
-                mDescription.setText(description);
-            else {
-                mDescription.setText("Per questo film non c'è nessuna descrizione disponibile");
-            }
+            //mRateNumber.setText(valutazione);
+
         } else {
-            Toast.makeText(this, "Nessun dato ricevuto dal click", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Nessun dato ricevuto dall'adapter'", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -108,11 +124,11 @@ public class DetailActivity extends AppCompatActivity {
         builder.show();
     }
 
+    //metodo per tornare indietro con la freccia in alto senza perdere la posizione di scroll
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
             finish();
-            //Toast.makeText(this, "diocan" + scrollPosition, Toast.LENGTH_SHORT).show();
         }
         return true;
     }

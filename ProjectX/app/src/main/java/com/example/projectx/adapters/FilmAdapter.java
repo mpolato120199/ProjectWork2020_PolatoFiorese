@@ -15,15 +15,25 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.projectx.Film.FilmTableHelper;
 import com.example.projectx.R;
 import com.example.projectx.activities.DetailActivity;
+import com.example.projectx.data.database.FilmTableHelper;
 import com.example.projectx.data.models.FilmResponse;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder> implements Filterable {
+
+    public List<FilmResponse.SingleFilmResult> filmList;
+    public List<FilmResponse.SingleFilmResult> filmToSearch;
+    public Context context;
+
+    public FilmAdapter(List<FilmResponse.SingleFilmResult> filmList, Context context) {
+        this.context = context;
+        this.filmList = filmList;
+        filmToSearch = filmList;
+    }
 
     private Filter filter = new Filter() {
         @Override
@@ -53,16 +63,6 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
         }
     };
 
-    public List<FilmResponse.SingleFilmResult> filmList;
-    public List<FilmResponse.SingleFilmResult> filmToSearch;
-    public Context context;
-
-    public FilmAdapter(List<FilmResponse.SingleFilmResult> filmList, Context context) {
-        this.context = context;
-        this.filmList = filmList;
-        filmToSearch = new ArrayList<>(filmList);
-    }
-
     @NonNull
     @Override
     public FilmViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -76,7 +76,6 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
         final ImageView imageView = holder.filmImage;
         final CardView cardView = holder.itemView.findViewById(R.id.myCardView);
 
-
         Glide.with(context)
                 .load("https://image.tmdb.org/t/p/w500" + filmList.get(position).getPosterPath())
                 .placeholder(R.drawable.preview)
@@ -88,9 +87,8 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
                 //Toast.makeText(context, holder.getAdapterPosition() + "", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(context, DetailActivity.class);
                 Bundle bundle = new Bundle();
-                int id = filmList.get(position).getId();
                 //Toast.makeText(context, "id film --> " + id, Toast.LENGTH_SHORT).show();
-                bundle.putString(FilmTableHelper.ID, Integer.toString(id));
+                bundle.putString(FilmTableHelper._ID, Integer.toString(filmList.get(position).getId()));
                 bundle.putString(FilmTableHelper.TITOLO, filmList.get(position).getTitle());
                 bundle.putString(FilmTableHelper.DESCRIZIONE, filmList.get(position).getOverview());
                 bundle.putString(FilmTableHelper.IMMAGINE_COPERTINA, filmList.get(position).getPosterPath());
@@ -112,6 +110,14 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
         return filter;
     }
 
+    public void resetFilms() {
+        this.filmToSearch.clear();
+    }
+
+    public void setFilms(List<FilmResponse.SingleFilmResult> list) {
+        this.filmList = list;
+    }
+
     public class FilmViewHolder extends RecyclerView.ViewHolder {
         ImageView filmImage;
 
@@ -119,13 +125,5 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
             super(itemView);
             filmImage = itemView.findViewById(R.id.imageFilm);
         }
-    }
-
-    public void resetFilms(){
-        this.filmList.clear();
-    }
-
-    public void setFilms(List<FilmResponse.SingleFilmResult> list){
-        this.filmList = list;
     }
 }

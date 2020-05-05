@@ -37,7 +37,7 @@
         </activity>
 
         <provider
-            android:name=".Film.FilmContentProvider"
-            android:authorities="com.example.projectx.Film.FilmContentProvider" />
+            android:name=".data.database.FilmContentProvider"
+            android:authorities="com.example.projectx.data.database.FilmContentProvider" />
     </application>
 </manifest>

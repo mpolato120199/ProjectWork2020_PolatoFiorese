@@ -3,9 +3,10 @@ package com.example.projectx.data.services;
 import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.example.projectx.Film.FilmContentProvider;
-import com.example.projectx.Film.FilmTableHelper;
+import com.example.projectx.data.database.FilmContentProvider;
+import com.example.projectx.data.database.FilmTableHelper;
 import com.example.projectx.data.models.FilmResponse;
 
 import java.io.IOException;
@@ -17,7 +18,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-//CLIENT NIGERIA
 public class WebServiceFilms {
 
     private String TODO_BASE_URL = "https://api.themoviedb.org";
@@ -40,20 +40,22 @@ public class WebServiceFilms {
         return instance;
     }
 
-    public void getFilms(String apiKey, final Context context, final IWebServer callback) {
-        Call<FilmResponse> filmsRequest = filmService.getFilms(apiKey);
+    public void getFilms(String apiKey, String language, final Context context, final IWebServer callback) {
+        Call<FilmResponse> filmsRequest = filmService.getFilms(apiKey, language);
         filmsRequest.enqueue(new Callback<FilmResponse>() {
             @Override
             public void onResponse(Call<FilmResponse> call, Response<FilmResponse> response) {
                 if (response.code() == 200) {
                     FilmResponse results = response.body();
                     List<FilmResponse.SingleFilmResult> filmList = results.getResults();
+
                     callback.onFilmsFetched(true, filmList, -1, null);
 
                     context.getContentResolver().delete(FilmContentProvider.FILMS_URI, null, null);
+
                     for (FilmResponse.SingleFilmResult movie : filmList) {
                         ContentValues cv = new ContentValues();
-                        cv.put(FilmTableHelper.ID, movie.getId());
+                        cv.put(FilmTableHelper._ID, movie.getId());
                         cv.put(FilmTableHelper.TITOLO, movie.getTitle());
                         cv.put(FilmTableHelper.DESCRIZIONE, movie.getOverview());
                         cv.put(FilmTableHelper.IMMAGINE_COPERTINA, movie.getPosterPath());
@@ -76,12 +78,12 @@ public class WebServiceFilms {
             public void onFailure(Call<FilmResponse> call, Throwable t) {
                 callback.onFilmsFetched(false, null, -1, t.getLocalizedMessage());
                 System.out.println("Errore entrato nell' OnFailure()");
+                Toast.makeText(context, "Server non raggiungibile, verifica la connessione.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    public void searchFilms(String query, String apiKey, final Context context, final IWebServer server) {
-
+    public void searchFilms(String apiKey, String query, final Context context, final IWebServer server) {
         Call<FilmResponse> filmsRequest = filmService.searchFilm(apiKey, query);
 
         filmsRequest.enqueue(new Callback<FilmResponse>() {

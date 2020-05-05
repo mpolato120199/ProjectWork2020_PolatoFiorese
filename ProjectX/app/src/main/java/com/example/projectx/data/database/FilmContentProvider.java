@@ -1,4 +1,4 @@
-package com.example.projectx.Film;
+package com.example.projectx.data.database;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -15,8 +15,7 @@ import androidx.annotation.Nullable;
 public class FilmContentProvider extends ContentProvider {
 
 
-
-    public static final String AUTORITY = "com.example.projectx.Film.FilmContentProvider";
+    public static final String AUTORITY = "com.example.projectx.data.database.FilmContentProvider";
     public static final String BASE_PATH_FILMS = "films";
     public static final int ALL_FILM = 1;
     public static final int SINGLE_FILM = 0;
@@ -35,7 +34,6 @@ public class FilmContentProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         mDb = new FilmDB(getContext());
-        SQLiteDatabase db = mDb.getWritableDatabase();
         return true;
     }
 
@@ -47,10 +45,12 @@ public class FilmContentProvider extends ContentProvider {
         switch (mUriMatcher.match(uri)) {
             case SINGLE_FILM:
                 vBuilder.setTables(FilmTableHelper.TABLE_NAME);
+                //vBuilder.setTables(FilmTableHelper.TABLE_VALUTAZIONE);
                 vBuilder.appendWhere(FilmTableHelper._ID + " = " + uri.getLastPathSegment());
                 break;
             case ALL_FILM:
                 vBuilder.setTables(FilmTableHelper.TABLE_NAME);
+                //vBuilder.setTables(FilmTableHelper.TABLE_VALUTAZIONE);
                 break;
         }
 
