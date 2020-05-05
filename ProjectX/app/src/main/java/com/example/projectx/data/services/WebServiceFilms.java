@@ -66,7 +66,7 @@ public class WebServiceFilms {
                     System.out.println("Successo onResponse() andato con successo!");
                 } else {
                     try {
-                        callback.onFilmsFetched(true, null, response.code(), response.errorBody().string());
+                        callback.onFilmsFetched(true, null, response.code(), "errormessage try del getfilms nel webservice " + response.errorBody().string());
                     } catch (IOException ex) {
                         Log.e("WebService", ex.toString());
                         callback.onFilmsFetched(true, null, response.code(), "Generic error message");

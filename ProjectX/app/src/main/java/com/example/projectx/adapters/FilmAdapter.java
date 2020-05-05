@@ -23,28 +23,26 @@ import com.example.projectx.data.models.FilmResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder> implements Filterable {
+public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder>{
 
     public List<FilmResponse.SingleFilmResult> filmList;
-    public List<FilmResponse.SingleFilmResult> filmToSearch;
     public Context context;
 
     public FilmAdapter(List<FilmResponse.SingleFilmResult> filmList, Context context) {
         this.context = context;
         this.filmList = filmList;
-        filmToSearch = filmList;
     }
 
-    private Filter filter = new Filter() {
+    /*private Filter filter = new Filter() {
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
             List<FilmResponse.SingleFilmResult> filteredList = new ArrayList<>();
             if (charSequence == null || charSequence.length() == 0) {
-                filteredList.addAll(filmToSearch);
+                filteredList.addAll(filmList);
             } else {
                 String filteredStyle = charSequence.toString().toLowerCase().trim();
 
-                for (FilmResponse.SingleFilmResult item : filmToSearch) {
+                for (FilmResponse.SingleFilmResult item : filmList) {
                     if (item.getTitle().toLowerCase().contains(filteredStyle)) {
                         filteredList.add(item);
                     }
@@ -61,7 +59,7 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
             filmList.addAll((List) filterResults.values);
             notifyDataSetChanged();
         }
-    };
+    };*/
 
     @NonNull
     @Override
@@ -105,13 +103,13 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
         return filmList.size();
     }
 
-    @Override
-    public Filter getFilter() {
-        return filter;
-    }
+    //@Override
+    //public Filter getFilter() {
+        //return filter;
+    //}
 
     public void resetFilms() {
-        this.filmToSearch.clear();
+        this.filmList.clear();
     }
 
     public void setFilms(List<FilmResponse.SingleFilmResult> list) {

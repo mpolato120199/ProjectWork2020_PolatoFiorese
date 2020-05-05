@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,7 +17,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuItemCompat;
-import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -47,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
     private GridLayoutManager layoutManager;
     List<FilmResponse.SingleFilmResult> filmsToDisplay;
     List<FilmResponse.SingleFilmResult> filmsNoConnection;
-    List<FilmResponse.SingleFilmResult> searchedFilm;
+    List<FilmResponse.SingleFilmResult> searchedFilms;
 
     private WebServiceFilms webServiceFilms;
 
@@ -133,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
     public void connectionOK() {
         webServiceFilms = WebServiceFilms.getInstance();
         filmsToDisplay = new ArrayList<>();
-        System.out.println( "pagina "+ PAGE);
         webServiceFilms.getFilms(API_KEY, LANGUAGE, PAGE, MainActivity.this, new IWebServer() {
             @Override
             public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
@@ -159,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
             @Override
             public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
                 if (success) {
-                    Toast.makeText(MainActivity.this, "no ga da entrar qua", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Errore, success non dovrebbe essere true", Toast.LENGTH_SHORT).show();
                 } else {
                     if (movies != null) {
                         while (movies.moveToNext()) {
@@ -177,8 +174,8 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
                     }
                 }
                 System.out.println("connKO()");
-                filmAdapter = new FilmAdapter(filmsNoConnection, MainActivity.this);
-                recyclerView.setAdapter(filmAdapter);
+
+                filmAdapter.setFilms(filmsNoConnection);
                 filmAdapter.notifyDataSetChanged();
             }
         });
@@ -203,23 +200,33 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if (checkConnection()) {
-                    if (!newText.isEmpty()) {
+                /*if (checkConnection()) {
+                    if (newText != null && !newText.isEmpty()) {
                         searchFilms(newText);
                     } else {
                         filmAdapter.resetFilms();
                         connectionOK();
+                        filmAdapter.notifyDataSetChanged();
                     }
-                    System.out.println(newText + " dio");
                 } else {
-                    if (!newText.isEmpty() || newText != "" || newText != null) {
-                        filmAdapter.getFilter().filter(newText);
+                    if (newText != null && !newText.isEmpty() ) {
+                        searchFilms(newText);
                     } else {
                         filmAdapter.resetFilms();
                         connectionKO();
                         filmAdapter.notifyDataSetChanged();
                     }
+                }*/
+                if (newText != null && !newText.isEmpty()){
+                    searchFilms(newText);
+                } else if (checkConnection()){
+                    filmAdapter.resetFilms();
+                    connectionOK();
+                } else {
+                    filmAdapter.resetFilms();
+                    connectionKO();
                 }
+                filmAdapter.notifyDataSetChanged();
                 return false;
             }
         });
@@ -236,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 swipeLayout.setEnabled(true);
+                filmAdapter.resetFilms();
                 searchView.clearFocus();
                 if (checkConnection()) {
                     connectionOK();
@@ -255,23 +263,45 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
     }
 
     private void searchFilms(String QUERY) {
-        searchedFilm = new ArrayList<>();
-        //final Cursor movies = MainActivity.this.getContentResolver().query(FilmContentProvider.FILMS_URI, null, null, null, null);
+        searchedFilms = new ArrayList<>();
+        final Cursor cursorNoConnection = MainActivity.this.getContentResolver().query(FilmContentProvider.FILMS_URI, null, FilmTableHelper.TITOLO + " LIKE \'%" + QUERY + "%\'", null, null);
 
-        webServiceFilms.searchFilms(API_KEY, QUERY, LANGUAGE,MainActivity.this, new IWebServer() {
-            @Override
-            public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
-                filmAdapter.resetFilms();
-                searchedFilm.clear();
-                if (success) {
-                    searchedFilm.addAll(films);
-                } else {
-                    Toast.makeText(MainActivity.this, "Connessione Internet assente!", Toast.LENGTH_SHORT).show();
+        if (checkConnection()) {
+            webServiceFilms.searchFilms(API_KEY, QUERY, LANGUAGE, MainActivity.this, new IWebServer() {
+                @Override
+                public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
+                    filmAdapter.resetFilms();
+                    searchedFilms.clear();
+                    if (success) {
+                        searchedFilms.addAll(films);
+                        filmAdapter.setFilms(searchedFilms);
+                        filmAdapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Connessione Internet assente!", Toast.LENGTH_SHORT).show();
+                    }
                 }
-                filmAdapter.setFilms(searchedFilm);
+            });
+        } else {
+            System.out.println("count del cursor ricerca" + cursorNoConnection.getCount());
+            if (cursorNoConnection != null) {
+                while (cursorNoConnection.moveToNext()) {
+                    FilmResponse.SingleFilmResult film = new FilmResponse.SingleFilmResult();
+                    film.setId(cursorNoConnection.getColumnIndex(FilmTableHelper._ID));
+                    film.setTitle(cursorNoConnection.getString(cursorNoConnection.getColumnIndex(FilmTableHelper.TITOLO)));
+                    film.setOverview(cursorNoConnection.getString(cursorNoConnection.getColumnIndex(FilmTableHelper.DESCRIZIONE)));
+                    film.setPosterPath(cursorNoConnection.getString(cursorNoConnection.getColumnIndex(FilmTableHelper.IMMAGINE_COPERTINA)));
+                    film.setBackdropPath(cursorNoConnection.getString(cursorNoConnection.getColumnIndex(FilmTableHelper.IMMAGINE_DETTAGLIO)));
+
+                    searchedFilms.add(film);
+                }
+                System.out.println("size del searchedfilms : " + searchedFilms.size());
+                filmAdapter.resetFilms();
+                filmAdapter.setFilms(searchedFilms);
                 filmAdapter.notifyDataSetChanged();
+            } else {
+                Toast.makeText(MainActivity.this, "Errore, cursor movies null ", Toast.LENGTH_SHORT).show();
             }
-        });
+        }
     }
 
     //metodo per nascondere la tastiera
