@@ -40,8 +40,8 @@ public class WebServiceFilms {
         return instance;
     }
 
-    public void getFilms(String apiKey, String language, final Context context, final IWebServer callback) {
-        Call<FilmResponse> filmsRequest = filmService.getFilms(apiKey, language);
+    public void getFilms(String apiKey, String language, int page, final Context context, final IWebServer callback) {
+        Call<FilmResponse> filmsRequest = filmService.getFilms(apiKey, language, page);
         filmsRequest.enqueue(new Callback<FilmResponse>() {
             @Override
             public void onResponse(Call<FilmResponse> call, Response<FilmResponse> response) {
@@ -83,8 +83,8 @@ public class WebServiceFilms {
         });
     }
 
-    public void searchFilms(String apiKey, String query, final Context context, final IWebServer server) {
-        Call<FilmResponse> filmsRequest = filmService.searchFilm(apiKey, query);
+    public void searchFilms(String apiKey, String query, String language, final Context context, final IWebServer server) {
+        Call<FilmResponse> filmsRequest = filmService.searchFilm(apiKey, query, language);
 
         filmsRequest.enqueue(new Callback<FilmResponse>() {
             @Override

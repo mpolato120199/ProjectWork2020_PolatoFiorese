@@ -115,7 +115,7 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmAdapter.FilmViewHolder
     }
 
     public void setFilms(List<FilmResponse.SingleFilmResult> list) {
-        this.filmList = list;
+        this.filmList.addAll(list);
     }
 
     public class FilmViewHolder extends RecyclerView.ViewHolder {

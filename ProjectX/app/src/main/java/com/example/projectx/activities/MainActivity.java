@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,13 +39,15 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
 
     private final String API_KEY = "a979a7eb2578017177824cf553c182ef";
     private final String LANGUAGE = "it-IT";
+    private int PAGE = 1;
 
     private RecyclerView recyclerView;
     private FilmAdapter filmAdapter;
     private SwipeRefreshLayout swipeLayout;
+    private GridLayoutManager layoutManager;
     List<FilmResponse.SingleFilmResult> filmsToDisplay;
+    List<FilmResponse.SingleFilmResult> filmsNoConnection;
     List<FilmResponse.SingleFilmResult> searchedFilm;
-    int visibleItems, totalItems, firstVisibleItemPosition;
 
     private WebServiceFilms webServiceFilms;
 
@@ -56,8 +59,30 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
 
         setLayout();
 
+        filmsToDisplay = new ArrayList<>();
+        filmAdapter = new FilmAdapter(filmsToDisplay, MainActivity.this);
+        recyclerView.setAdapter(filmAdapter);
+
         if (checkConnection()) {
             connectionOK();
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    if (dy > 0) {
+                        hideKeyboard(MainActivity.this);
+                    }
+                }
+
+                @Override
+                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (!recyclerView.canScrollVertically(1)) {
+                        PAGE++;
+                        connectionOK();
+                    }
+                }
+            });
         } else {
             connectionKO();
         }
@@ -66,8 +91,17 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
 
     public void setLayout() {
         recyclerView = findViewById(R.id.recyclerFilms);
-        swipeLayout = findViewById(R.id.swipeLayout);
 
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            layoutManager = new GridLayoutManager(MainActivity.this, 4);
+        } else {
+            layoutManager = new GridLayoutManager(MainActivity.this, 2);
+        }
+
+        recyclerView.setLayoutManager(layoutManager);
+
+        swipeLayout = findViewById(R.id.swipeLayout);
         swipeLayout.setColorSchemeResources(R.color.colorPrimary);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -75,31 +109,12 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
                 if (checkConnection()) {
                     connectionOK();
                 } else {
-                    connectionKO();
+                    swipeLayout.setRefreshing(false);
+                    //connectionKO();
                     System.out.println("connectionKO dello swipe");
                 }
                 //Toast.makeText(MainActivity.this, "Film ricaricati con successo ☑", Toast.LENGTH_SHORT).show();
                 swipeLayout.setRefreshing(false);
-            }
-        });
-
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        int orientation = getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 4));
-        } else {
-            recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
-        }
-
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                if (dy > 0) {
-                    hideKeyboard(MainActivity.this);
-                }
             }
         });
 
@@ -118,29 +133,29 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
     public void connectionOK() {
         webServiceFilms = WebServiceFilms.getInstance();
         filmsToDisplay = new ArrayList<>();
-        IWebServer webServer = new IWebServer() {
+        System.out.println( "pagina "+ PAGE);
+        webServiceFilms.getFilms(API_KEY, LANGUAGE, PAGE, MainActivity.this, new IWebServer() {
             @Override
             public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
                 if (success) {
-                    setLayoutAdapter(films);
-                    Toast.makeText(MainActivity.this, "Film caricati con successo ☑", Toast.LENGTH_SHORT).show();
+                    filmsToDisplay.addAll(films);
+                    filmAdapter.setFilms(filmsToDisplay);
+                    filmAdapter.notifyDataSetChanged();
+                    Toast.makeText(MainActivity.this, "Film pagina " + PAGE + " caricati correttamente ☑", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Errore: " + errorMessage, Toast.LENGTH_SHORT).show();
                 }
             }
-        };
-        webServiceFilms.getFilms(API_KEY, LANGUAGE, MainActivity.this, webServer);
-
-
+        });
+        System.out.println(filmsToDisplay.size() + " filmtodisplay size");
         System.out.println("connOK()");
     }
 
     public void connectionKO() {
         webServiceFilms = WebServiceFilms.getInstance();
-        final List<FilmResponse.SingleFilmResult> filmsNoConnection = new ArrayList<>();
-        filmsToDisplay = new ArrayList<>();
+        filmsNoConnection = new ArrayList<>();
         final Cursor movies = MainActivity.this.getContentResolver().query(FilmContentProvider.FILMS_URI, null, null, null, null);
-        webServiceFilms.getFilms(API_KEY, LANGUAGE, MainActivity.this, new IWebServer() {
+        webServiceFilms.getFilms(API_KEY, LANGUAGE, PAGE,MainActivity.this, new IWebServer() {
             @Override
             public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
                 if (success) {
@@ -162,19 +177,14 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
                     }
                 }
                 System.out.println("connKO()");
-                System.out.println(movies.getCount() + " dio");
+                filmAdapter = new FilmAdapter(filmsNoConnection, MainActivity.this);
+                recyclerView.setAdapter(filmAdapter);
+                filmAdapter.notifyDataSetChanged();
             }
         });
-        filmsToDisplay.addAll(filmsNoConnection);
-        setLayoutAdapter(filmsToDisplay);
+
     }
 
-    private void setLayoutAdapter(List<FilmResponse.SingleFilmResult> films) {
-        filmAdapter = new FilmAdapter(films, MainActivity.this);
-        recyclerView.setAdapter(filmAdapter);
-        filmAdapter.notifyDataSetChanged();
-        System.out.println("setLayoutAdapter()");
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -248,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
         searchedFilm = new ArrayList<>();
         //final Cursor movies = MainActivity.this.getContentResolver().query(FilmContentProvider.FILMS_URI, null, null, null, null);
 
-        webServiceFilms.searchFilms(API_KEY, QUERY, MainActivity.this, new IWebServer() {
+        webServiceFilms.searchFilms(API_KEY, QUERY, LANGUAGE,MainActivity.this, new IWebServer() {
             @Override
             public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
                 filmAdapter.resetFilms();

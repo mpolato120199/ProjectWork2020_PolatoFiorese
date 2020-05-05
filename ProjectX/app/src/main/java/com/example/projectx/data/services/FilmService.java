@@ -13,12 +13,14 @@ public interface FilmService {
     @GET("/3/trending/movie/week?")
     Call<FilmResponse> getFilms(
             @Query("api_key") String apiKey,
-            @Query("language") String language
+            @Query("language") String language,
+            @Query("page") int page
     );
 
     @GET("/3/search/movie?")
     Call<FilmResponse> searchFilm(
             @Query("api_key") String apiKey,
-            @Query("query") String query
+            @Query("query") String query,
+            @Query("language") String language
     );
 }
