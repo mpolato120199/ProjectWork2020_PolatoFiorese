@@ -11,7 +11,7 @@ public class RateTableHelper implements BaseColumns {
     public static final String DATA_VALUTAZIONE = "data_valutazione";
 
     public static final String CREATE = "CREATE TABLE " + TABLE_NAME + " ( " +
-            _ID + " INTEGER PRIMARY KEY," +
-            VALUTAZIONE + " TEXT," +
+            _ID + " INTEGER," +
+            VALUTAZIONE + " FLOAT," +
             DATA_VALUTAZIONE + " TEXT);";
 }

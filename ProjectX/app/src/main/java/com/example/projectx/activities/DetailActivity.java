@@ -1,9 +1,13 @@
 package com.example.projectx.activities;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,14 +23,19 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.projectx.R;
+import com.example.projectx.data.database.FilmContentProvider;
 import com.example.projectx.data.database.FilmTableHelper;
+import com.example.projectx.data.database.RateTableHelper;
+import com.example.projectx.data.models.FilmResponse;
+
+import java.util.Calendar;
 
 public class DetailActivity extends AppCompatActivity {
 
     TextView mTitle, mDescription, mRateNumber, mRateNumber2;
     Button mButtonRateFilm;
     ImageView mImageDetail, mImageStar;
-
+    String id = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,7 +67,7 @@ public class DetailActivity extends AppCompatActivity {
 
     public void displayFilmDetail() {
         if (getIntent().getExtras() != null) {
-            final String id = getIntent().getExtras().getString(FilmTableHelper._ID);
+            id = getIntent().getExtras().getString(FilmTableHelper._ID);
             final String title = getIntent().getExtras().getString(FilmTableHelper.TITOLO);
             final String description = getIntent().getExtras().getString(FilmTableHelper.DESCRIZIONE);
             final String imageDetail = getIntent().getExtras().getString(FilmTableHelper.IMMAGINE_DETTAGLIO);
@@ -110,14 +119,8 @@ public class DetailActivity extends AppCompatActivity {
         builder.setPositiveButton("VALUTA", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                int orientation = getResources().getConfiguration().orientation;
-                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    mRateNumber.setText("Il tuo voto: ");
-                    mRateNumber2.setText("" + ratingBar.getRating());
-                } else {
-                    mRateNumber.setText("Il tuo voto: " + ratingBar.getRating());
-                }
-                mImageStar.setImageResource(R.drawable.star);
+                insertToDB(id, ratingBar.getRating());
+                setRateNumbers(id);
                 Toast.makeText(getApplicationContext(), "Film valutato: " + ratingBar.getRating() + " stelle", Toast.LENGTH_SHORT).show();
             }
         });
@@ -131,5 +134,29 @@ public class DetailActivity extends AppCompatActivity {
             finish();
         }
         return true;
+    }
+
+    public void setRateNumbers(String id)
+    {
+        String[] valutazione = {RateTableHelper.VALUTAZIONE};
+        Cursor vCursor = getContentResolver().query(FilmContentProvider.RATE_URI, valutazione,RateTableHelper._ID +" = "+id,null,null);
+        vCursor.moveToNext();
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mRateNumber.setText("Il tuo voto: ");
+            mRateNumber2.setText("" + vCursor.getFloat(vCursor.getColumnIndex(RateTableHelper.VALUTAZIONE)));
+        } else {
+            Log.d("TAG", ""+ vCursor.getFloat(vCursor.getColumnIndex(RateTableHelper.VALUTAZIONE)));
+            mRateNumber.setText("Il tuo voto: " + vCursor.getFloat(vCursor.getColumnIndex(RateTableHelper.VALUTAZIONE)));
+        }
+        mImageStar.setImageResource(R.drawable.star);
+    }
+    public void insertToDB(String id_movie, float rating)
+    {
+        ContentValues cv = new ContentValues();
+        cv.put(RateTableHelper._ID, id_movie);
+        cv.put(RateTableHelper.VALUTAZIONE, rating);
+        cv.put(RateTableHelper.DATA_VALUTAZIONE, ""+Calendar.getInstance().getTime());
+        getContentResolver().insert(FilmContentProvider.RATE_URI, cv);
     }
 }
