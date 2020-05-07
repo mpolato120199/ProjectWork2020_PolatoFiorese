@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,7 +36,7 @@ public class DetailActivity extends AppCompatActivity {
     TextView mTitle, mDescription, mRateNumber, mRateNumber2;
     Button mButtonRateFilm;
     ImageView mImageDetail, mImageStar;
-    String id = "";
+    private String id = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,6 +103,7 @@ public class DetailActivity extends AppCompatActivity {
                         .into(mImageDetail);
             }
 
+            setRateNumbers(id);
             //mRateNumber.setText(valutazione);
 
         } else {
@@ -110,6 +112,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     public void withRatingBar(View view) {
+        final Cursor vCursor = getContentResolver().query(FilmContentProvider.RATE_URI, null,RateTableHelper._ID +" = "+id,null,null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         builder.setTitle(mTitle.getText());
@@ -119,8 +122,15 @@ public class DetailActivity extends AppCompatActivity {
         builder.setPositiveButton("VALUTA", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                insertToDB(id, ratingBar.getRating());
-                setRateNumbers(id);
+                if(vCursor.getCount() == 0)
+                {
+                    insertToDB(id, ratingBar.getRating());
+                    setRateNumbers(id);
+                }else
+                {
+                    updateToDB(id, ratingBar.getRating());
+                    setRateNumbers(id);
+                }
                 Toast.makeText(getApplicationContext(), "Film valutato: " + ratingBar.getRating() + " stelle", Toast.LENGTH_SHORT).show();
             }
         });
@@ -142,14 +152,23 @@ public class DetailActivity extends AppCompatActivity {
         Cursor vCursor = getContentResolver().query(FilmContentProvider.RATE_URI, valutazione,RateTableHelper._ID +" = "+id,null,null);
         vCursor.moveToNext();
         int orientation = getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            mRateNumber.setText("Il tuo voto: ");
-            mRateNumber2.setText("" + vCursor.getFloat(vCursor.getColumnIndex(RateTableHelper.VALUTAZIONE)));
-        } else {
-            Log.d("TAG", ""+ vCursor.getFloat(vCursor.getColumnIndex(RateTableHelper.VALUTAZIONE)));
-            mRateNumber.setText("Il tuo voto: " + vCursor.getFloat(vCursor.getColumnIndex(RateTableHelper.VALUTAZIONE)));
+
+        if(vCursor.getCount() == 1) {
+            float rating = vCursor.getFloat(vCursor.getColumnIndex(RateTableHelper.VALUTAZIONE));
+            Log.d("TAG", rating+"");
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                mRateNumber.setText("Il tuo voto: ");
+                mRateNumber2.setText("" + rating);
+            } else {
+                Log.d("TAG", "" + rating);
+                mRateNumber.setText("Il tuo voto: " + rating);
+
+            }
+            mImageStar.setImageResource(R.drawable.star);
         }
-        mImageStar.setImageResource(R.drawable.star);
+        else
+            mRateNumber.setTextColor(Color.BLUE);
+            mRateNumber.setText("Ancora da valutare");
     }
     public void insertToDB(String id_movie, float rating)
     {
@@ -158,5 +177,13 @@ public class DetailActivity extends AppCompatActivity {
         cv.put(RateTableHelper.VALUTAZIONE, rating);
         cv.put(RateTableHelper.DATA_VALUTAZIONE, ""+Calendar.getInstance().getTime());
         getContentResolver().insert(FilmContentProvider.RATE_URI, cv);
+    }
+    public void updateToDB(String id_movie, float rating)
+    {
+        ContentValues cv = new ContentValues();
+        cv.put(RateTableHelper._ID, id_movie);
+        cv.put(RateTableHelper.VALUTAZIONE, rating);
+        cv.put(RateTableHelper.DATA_VALUTAZIONE, ""+Calendar.getInstance().getTime());
+        getContentResolver().update(FilmContentProvider.RATE_URI,cv,null,null);
     }
 }

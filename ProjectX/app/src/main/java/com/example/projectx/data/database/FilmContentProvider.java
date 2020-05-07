@@ -102,10 +102,11 @@ public class FilmContentProvider extends ContentProvider {
             case ALL_FILM:
                 vResult = vDb.insert(FilmTableHelper.TABLE_NAME, null, values);
                 vResultString = ContentResolver.SCHEME_CONTENT + "://" + BASE_PATH_FILMS + "/" + vResult;
-
+                break;
             case ALL_RATE:
                 vResult = vDb.insert(RateTableHelper.TABLE_NAME, null, values);
                 vResultString = ContentResolver.SCHEME_CONTENT + "://" + BASE_PATH_RATE + "/" + vResult;
+                break;
 
         }
         getContext().getContentResolver().notifyChange(uri, null);
