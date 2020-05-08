@@ -62,11 +62,9 @@ public class WebServiceFilms {
                         cv.put(FilmTableHelper.IMMAGINE_DETTAGLIO, movie.getBackdropPath());
                         context.getContentResolver().insert(FilmContentProvider.FILMS_URI, cv);
                     }
-
-                    System.out.println("Successo onResponse() andato con successo!");
                 } else {
                     try {
-                        callback.onFilmsFetched(true, null, response.code(), "errormessage try del getfilms nel webservice " + response.errorBody().string());
+                        callback.onFilmsFetched(true, null, response.code(), "Error fetching films " + response.errorBody().string());
                     } catch (IOException ex) {
                         Log.e("WebService", ex.toString());
                         callback.onFilmsFetched(true, null, response.code(), "Generic error message");
@@ -77,7 +75,6 @@ public class WebServiceFilms {
             @Override
             public void onFailure(Call<FilmResponse> call, Throwable t) {
                 callback.onFilmsFetched(false, null, -1, t.getLocalizedMessage());
-                System.out.println("Errore entrato nell' OnFailure()");
                 Toast.makeText(context, "Server non raggiungibile, verifica la connessione.", Toast.LENGTH_SHORT).show();
             }
         });

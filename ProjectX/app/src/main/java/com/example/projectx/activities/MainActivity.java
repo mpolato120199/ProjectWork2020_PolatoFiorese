@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
     List<FilmResponse.SingleFilmResult> filmsNoConnection;
     List<FilmResponse.SingleFilmResult> searchedFilms;
 
+    int recyclerChildCount, layoutManagerItemCount, lastVisibleItemPos, firstVisibleItemPos;
+
     private WebServiceFilms webServiceFilms;
 
     @Override
@@ -62,23 +64,22 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
         recyclerView.setAdapter(filmAdapter);
 
         if (checkConnection()) {
-            connectionOK();
+            connectionOK(PAGE = 1);
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
-                    if (dy > 0) {
-                        hideKeyboard(MainActivity.this);
-                    }
-                }
-
-                @Override
-                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
+                    layoutManagerItemCount = layoutManager.getItemCount();
+                    lastVisibleItemPos = layoutManager.findLastVisibleItemPosition();
+                    firstVisibleItemPos = layoutManager.findFirstVisibleItemPosition();
+                    //System.out.println(" layoutManagerItemCount " + layoutManagerItemCount + " lastvisibelitem " + lastVisibleItemPos);
                     if (!recyclerView.canScrollVertically(1)) {
-                        PAGE++;
-                        connectionOK();
+                        PAGE += 1;
+                        connectionOK(PAGE);
                     }
+                    //if ((layoutManagerItemCount - recyclerChildCount) <= (firstVisibleItemPos + 5)) {
+
+                    //}
                 }
             });
         } else {
@@ -105,18 +106,15 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
             @Override
             public void onRefresh() {
                 if (checkConnection()) {
-                    connectionOK();
+                    connectionOK(PAGE = 1);
                 } else {
                     swipeLayout.setRefreshing(false);
                     //connectionKO();
-                    System.out.println("connectionKO dello swipe");
                 }
                 //Toast.makeText(MainActivity.this, "Film ricaricati con successo ☑", Toast.LENGTH_SHORT).show();
                 swipeLayout.setRefreshing(false);
             }
         });
-
-        System.out.println("setLayout()");
     }
 
     public boolean checkConnection() {
@@ -124,35 +122,32 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
         if (connectivityManager == null)
             return false;
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        System.out.println("checkConn()");
         return activeNetworkInfo != null;
     }
 
-    public void connectionOK() {
+    public void connectionOK(final int pagina) {
         webServiceFilms = WebServiceFilms.getInstance();
         filmsToDisplay = new ArrayList<>();
-        webServiceFilms.getFilms(API_KEY, LANGUAGE, PAGE, MainActivity.this, new IWebServer() {
+        webServiceFilms.getFilms(API_KEY, LANGUAGE, pagina, MainActivity.this, new IWebServer() {
             @Override
             public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
                 if (success) {
                     filmsToDisplay.addAll(films);
                     filmAdapter.setFilms(filmsToDisplay);
                     filmAdapter.notifyDataSetChanged();
-                    Toast.makeText(MainActivity.this, "Film pagina " + PAGE + " caricati correttamente ☑", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Film pagina " + pagina + " caricati correttamente ☑", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Errore: " + errorMessage, Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        System.out.println(filmsToDisplay.size() + " filmtodisplay size");
-        System.out.println("connOK()");
     }
 
     public void connectionKO() {
         webServiceFilms = WebServiceFilms.getInstance();
         filmsNoConnection = new ArrayList<>();
         final Cursor movies = MainActivity.this.getContentResolver().query(FilmContentProvider.FILMS_URI, null, null, null, null);
-        webServiceFilms.getFilms(API_KEY, LANGUAGE, PAGE,MainActivity.this, new IWebServer() {
+        webServiceFilms.getFilms(API_KEY, LANGUAGE, PAGE, MainActivity.this, new IWebServer() {
             @Override
             public void onFilmsFetched(boolean success, List<FilmResponse.SingleFilmResult> films, int errorCode, String errorMessage) {
                 if (success) {
@@ -170,10 +165,9 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
                             filmsNoConnection.add(film);
                         }
                     } else {
-                        Toast.makeText(MainActivity.this, "Errore, cursor movies null ", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Nessun contenuto da mostrare, riprova", Toast.LENGTH_SHORT).show();
                     }
                 }
-                System.out.println("connKO()");
 
                 filmAdapter.setFilms(filmsNoConnection);
                 filmAdapter.notifyDataSetChanged();
@@ -217,11 +211,11 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
                         filmAdapter.notifyDataSetChanged();
                     }
                 }*/
-                if (newText != null && !newText.isEmpty()){
+                if (newText != null && !newText.isEmpty()) {
                     searchFilms(newText);
-                } else if (checkConnection()){
+                } else if (checkConnection()) {
                     filmAdapter.resetFilms();
-                    connectionOK();
+                    connectionOK(PAGE = 1);
                 } else {
                     filmAdapter.resetFilms();
                     connectionKO();
@@ -246,14 +240,13 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
                 filmAdapter.resetFilms();
                 searchView.clearFocus();
                 if (checkConnection()) {
-                    connectionOK();
+                    connectionOK(PAGE = 1);
                 } else {
                     connectionKO();
                 }
                 return true;
             }
         });
-        System.out.println("oncreateoptionmenu()");
         return true;
     }
 
@@ -282,7 +275,6 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
                 }
             });
         } else {
-            System.out.println("count del cursor ricerca" + cursorNoConnection.getCount());
             if (cursorNoConnection != null) {
                 while (cursorNoConnection.moveToNext()) {
                     FilmResponse.SingleFilmResult film = new FilmResponse.SingleFilmResult();
@@ -294,12 +286,11 @@ public class MainActivity extends AppCompatActivity implements IWebServer {
 
                     searchedFilms.add(film);
                 }
-                System.out.println("size del searchedfilms : " + searchedFilms.size());
                 filmAdapter.resetFilms();
                 filmAdapter.setFilms(searchedFilms);
                 filmAdapter.notifyDataSetChanged();
             } else {
-                Toast.makeText(MainActivity.this, "Errore, cursor movies null ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Nessun contenuto da mostrare, riprova", Toast.LENGTH_SHORT).show();
             }
         }
     }

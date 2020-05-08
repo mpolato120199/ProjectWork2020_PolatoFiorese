@@ -104,10 +104,9 @@ public class DetailActivity extends AppCompatActivity {
             }
 
             setRateNumbers(id);
-            //mRateNumber.setText(valutazione);
 
         } else {
-            Toast.makeText(this, "Nessun dato ricevuto dall'adapter'", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Nessun dato ricevuto da mostrare, riprova'", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -131,7 +130,7 @@ public class DetailActivity extends AppCompatActivity {
                     updateToDB(id, ratingBar.getRating());
                     setRateNumbers(id);
                 }
-                Toast.makeText(getApplicationContext(), "Film valutato: " + ratingBar.getRating() + " stelle", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Film valutato: " + ratingBar.getRating() + " stelle", Toast.LENGTH_SHORT).show();
             }
         });
         builder.show();
@@ -167,9 +166,10 @@ public class DetailActivity extends AppCompatActivity {
             mImageStar.setImageResource(R.drawable.star);
         }
         else
-            mRateNumber.setTextColor(Color.BLUE);
+            mRateNumber.setTextColor(getResources().getColor(R.color.colorPrimary));
             mRateNumber.setText("Ancora da valutare");
     }
+
     public void insertToDB(String id_movie, float rating)
     {
         ContentValues cv = new ContentValues();
